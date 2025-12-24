@@ -1,14 +1,20 @@
+import { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import FullCalendar from '@fullcalendar/react'
 import resourceTimeGridPlugin from '@fullcalendar/resource-timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import { updateEvent, addEvent } from '../store/calendarSlice'
+import EventDrawer from './EventDrawer'
 import './Calendar.css'
 
 function Calendar() {
   const dispatch = useDispatch()
   const { resources, events } = useSelector((state) => state.calendar)
+  
+  // Drawer state
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const [selectedEventId, setSelectedEventId] = useState(null)
 
   // Handle event drop (drag and drop)
   const handleEventDrop = (info) => {
@@ -55,7 +61,14 @@ function Calendar() {
 
   // Handle event click
   const handleEventClick = (info) => {
-    alert(`Event: ${info.event.title}\nStart: ${info.event.start}\nEnd: ${info.event.end}`)
+    setSelectedEventId(info.event.id)
+    setIsDrawerOpen(true)
+  }
+
+  // Handle drawer close
+  const handleDrawerClose = () => {
+    setIsDrawerOpen(false)
+    setTimeout(() => setSelectedEventId(null), 300) // Clear after animation
   }
 
   // Handle date select (for creating new events)
@@ -79,39 +92,47 @@ function Calendar() {
       dispatch(addEvent(newEvent))
     }
   }
-  console.count("render")
+
   return (
-    <div className="calendar-wrapper">
-      <FullCalendar
-        plugins={[resourceTimeGridPlugin, interactionPlugin, dayGridPlugin]}
-        initialView="resourceTimeGridDay"
-        headerToolbar={{
-          left: 'prev,next today',
-          center: 'title',
-          right: 'resourceTimeGridDay,resourceTimeGridWeek,dayGridMonth'
-        }}
-        resources={resources}
-        events={events}
-        editable={true}
-        selectable={true}
-        selectMirror={true}
-        dayMaxEvents={true}
-        weekends={true}
-        eventDrop={handleEventDrop}
-        eventResize={handleEventResize}
-        eventClick={handleEventClick}
-        select={handleDateSelect}
-        slotMinTime="08:00:00"
-        slotMaxTime="18:00:00"
-        height="500px"
-        resourceAreaHeaderContent="Resources"
-        resourceAreaWidth="15%"
-        slotDuration="00:30:00"
-        slotLabelInterval="01:00"
-        eventResizableFromStart={true}
-        nowIndicator={true}
+    <>
+      <div className="calendar-wrapper">
+        <FullCalendar
+          plugins={[resourceTimeGridPlugin, interactionPlugin, dayGridPlugin]}
+          initialView="resourceTimeGridDay"
+          headerToolbar={{
+            left: 'prev,next today',
+            center: 'title',
+            right: 'resourceTimeGridDay,resourceTimeGridWeek,dayGridMonth'
+          }}
+          resources={resources}
+          events={events}
+          editable={true}
+          selectable={true}
+          selectMirror={true}
+          dayMaxEvents={true}
+          weekends={true}
+          eventDrop={handleEventDrop}
+          eventResize={handleEventResize}
+          eventClick={handleEventClick}
+          select={handleDateSelect}
+          slotMinTime="08:00:00"
+          slotMaxTime="18:00:00"
+          height="500px"
+          resourceAreaHeaderContent="Resources"
+          resourceAreaWidth="15%"
+          slotDuration="00:30:00"
+          slotLabelInterval="01:00"
+          eventResizableFromStart={true}
+          nowIndicator={true}
+        />
+      </div>
+
+      <EventDrawer
+        isOpen={isDrawerOpen}
+        onClose={handleDrawerClose}
+        eventId={selectedEventId}
       />
-    </div>
+    </>
   )
 }
 

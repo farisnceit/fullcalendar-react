@@ -9,6 +9,7 @@ A modern React application featuring FullCalendar with **Resource Timeline Day V
 - ✅ **Event Resizing** - Resize events from both start and end
 - ✅ **Interactive Selection** - Click and drag to create new events
 - ✅ **Multiple Views** - Switch between Day, Week, and Month views
+- ✅ **Event Details Drawer** - Beautiful slide-up drawer with comprehensive event information
 - ✅ **Redux State Management** - Centralized state with Redux Toolkit
 - ✅ **Component Architecture** - Modular, reusable components
 - ✅ **Real-time Updates** - Events update dynamically through Redux actions
@@ -53,7 +54,11 @@ fullcalendar-react/
 ├── src/
 │   ├── components/
 │   │   ├── Calendar.jsx       # FullCalendar component
-│   │   └── Calendar.css       # Calendar-specific styles
+│   │   ├── Calendar.css       # Calendar-specific styles
+│   │   ├── EventDrawer.jsx    # Event details drawer
+│   │   ├── EventDrawer.css    # Drawer styles
+│   │   ├── EventList.jsx      # Event list component
+│   │   └── EventList.css      # Event list styles
 │   ├── store/
 │   │   ├── store.js           # Redux store configuration
 │   │   └── calendarSlice.js   # Calendar state slice with actions
