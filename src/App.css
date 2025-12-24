@@ -3,8 +3,8 @@
   max-width: 1400px;
   margin: 0 auto;
   padding: 20px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
 }
 
@@ -33,18 +33,9 @@
   font-weight: 300;
 }
 
-/* Calendar Container */
-.calendar-container {
-  background: white;
-  border-radius: 16px;
-  padding: 25px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+/* Calendar Section */
+.calendar-section {
   margin-bottom: 30px;
-  transition: box-shadow 0.3s ease;
-}
-
-.calendar-container:hover {
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
 }
 
 /* Info Panel */
@@ -59,6 +50,13 @@
   margin: 0 0 15px 0;
   color: #2d3748;
   font-size: 1.3rem;
+  font-weight: 600;
+}
+
+.info-panel h4 {
+  margin: 20px 0 10px 0;
+  color: #2d3748;
+  font-size: 1.1rem;
   font-weight: 600;
 }
 
@@ -84,95 +82,42 @@
   transform: translateX(5px);
 }
 
-/* FullCalendar Custom Styles */
-.fc {
-  font-family: inherit;
+/* Redux Info Section */
+.redux-info {
+  margin-top: 25px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
+  border-left: 4px solid #667eea;
 }
 
-.fc .fc-button-primary {
-  background-color: #667eea;
-  border-color: #667eea;
-  transition: all 0.3s ease;
+.redux-info p {
+  color: #4a5568;
+  margin: 10px 0;
+  line-height: 1.6;
 }
 
-.fc .fc-button-primary:hover {
-  background-color: #5568d3;
-  border-color: #5568d3;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+.redux-actions {
+  margin-top: 15px;
 }
 
-.fc .fc-button-primary:not(:disabled):active,
-.fc .fc-button-primary:not(:disabled).fc-button-active {
-  background-color: #4c51bf;
-  border-color: #4c51bf;
+.redux-actions li {
+  padding: 8px 0;
+  display: flex;
+  align-items: center;
 }
 
-.fc .fc-toolbar-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #2d3748;
-}
-
-.fc-theme-standard td,
-.fc-theme-standard th {
-  border-color: #e2e8f0;
-}
-
-.fc-theme-standard .fc-scrollgrid {
-  border-color: #e2e8f0;
-}
-
-/* Resource Area Styling */
-.fc-resource-timeline .fc-resource-group {
-  background-color: #f7fafc;
-}
-
-.fc-datagrid-cell-cushion {
-  padding: 12px 8px;
-  font-weight: 500;
-  color: #2d3748;
-}
-
-/* Event Styling */
-.fc-event {
+.redux-actions code {
+  background: #667eea;
+  color: white;
+  padding: 4px 10px;
   border-radius: 6px;
-  padding: 4px 8px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.fc-event:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  z-index: 10;
-}
-
-.fc-event-title {
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
   font-weight: 600;
-}
-
-/* Time Grid Styling */
-.fc-timegrid-slot {
-  height: 3em;
-}
-
-.fc-timegrid-slot-label {
-  color: #718096;
-  font-size: 0.875rem;
-}
-
-/* Now Indicator */
-.fc-timegrid-now-indicator-line {
-  border-color: #f56565;
-  border-width: 2px;
-}
-
-.fc-timegrid-now-indicator-arrow {
-  border-color: #f56565;
+  margin-right: 10px;
+  min-width: 140px;
+  display: inline-block;
 }
 
 /* Responsive Design */
@@ -185,37 +130,12 @@
     font-size: 1rem;
   }
 
-  .calendar-container {
+  .redux-info {
     padding: 15px;
   }
 
-  .fc .fc-toolbar {
-    flex-direction: column;
-    gap: 10px;
+  .redux-actions code {
+    min-width: 120px;
+    font-size: 0.85rem;
   }
-
-  .fc .fc-toolbar-title {
-    font-size: 1.2rem;
-  }
-}
-
-/* Loading Animation */
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
-.fc-event-dragging {
-  opacity: 0.7;
-  animation: pulse 1s ease-in-out infinite;
-}
-
-/* Selection Highlight */
-.fc-highlight {
-  background: rgba(102, 126, 234, 0.2);
 }

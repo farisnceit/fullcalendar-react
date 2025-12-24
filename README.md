@@ -1,6 +1,6 @@
-# FullCalendar React Implementation
+# FullCalendar React Implementation with Redux
 
-A modern React application featuring FullCalendar with **Resource Timeline Day View**, complete with drag-and-drop, resize functionality, and interactive event management.
+A modern React application featuring FullCalendar with **Resource Timeline Day View**, complete with drag-and-drop, resize functionality, and **Redux state management**.
 
 ## 🚀 Features
 
@@ -9,7 +9,9 @@ A modern React application featuring FullCalendar with **Resource Timeline Day V
 - ✅ **Event Resizing** - Resize events from both start and end
 - ✅ **Interactive Selection** - Click and drag to create new events
 - ✅ **Multiple Views** - Switch between Day, Week, and Month views
-- ✅ **Real-time Updates** - Events update dynamically with state management
+- ✅ **Redux State Management** - Centralized state with Redux Toolkit
+- ✅ **Component Architecture** - Modular, reusable components
+- ✅ **Real-time Updates** - Events update dynamically through Redux actions
 - ✅ **Modern UI** - Beautiful gradients, smooth animations, and responsive design
 
 ## 📦 Installed Packages
@@ -20,7 +22,9 @@ A modern React application featuring FullCalendar with **Resource Timeline Day V
   "@fullcalendar/react": "^6.x.x",
   "@fullcalendar/resource-timegrid": "^6.x.x",
   "@fullcalendar/interaction": "^6.x.x",
-  "@fullcalendar/daygrid": "^6.x.x"
+  "@fullcalendar/daygrid": "^6.x.x",
+  "@reduxjs/toolkit": "^2.x.x",
+  "react-redux": "^9.x.x"
 }
 ```
 
@@ -47,12 +51,73 @@ The application will open at `http://localhost:5173`
 ```
 fullcalendar-react/
 ├── src/
-│   ├── App.jsx          # Main calendar component
-│   ├── App.css          # Calendar-specific styles
-│   ├── index.css        # Global styles
-│   └── main.jsx         # Entry point
+│   ├── components/
+│   │   ├── Calendar.jsx       # FullCalendar component
+│   │   └── Calendar.css       # Calendar-specific styles
+│   ├── store/
+│   │   ├── store.js           # Redux store configuration
+│   │   └── calendarSlice.js   # Calendar state slice with actions
+│   ├── App.jsx                # Main app component with Provider
+│   ├── App.css                # App-specific styles
+│   ├── index.css              # Global styles
+│   └── main.jsx               # Entry point
 ├── package.json
 └── vite.config.js
+```
+
+## 🔄 Redux State Management
+
+### Store Structure
+
+The application uses Redux Toolkit for state management with the following structure:
+
+```javascript
+{
+  calendar: {
+    resources: [...],  // Array of resource objects
+    events: [...]      // Array of event objects
+  }
+}
+```
+
+### Available Actions
+
+The calendar slice provides these actions:
+
+- **`addEvent(event)`** - Add a new event to the calendar
+- **`updateEvent(event)`** - Update an existing event (used for drag/drop and resize)
+- **`deleteEvent(eventId)`** - Remove an event from the calendar
+- **`addResource(resource)`** - Add a new resource
+- **`updateResource(resource)`** - Update an existing resource
+- **`deleteResource(resourceId)`** - Remove a resource
+
+### Usage Example
+
+```javascript
+import { useDispatch } from "react-redux";
+import { addEvent, updateEvent } from "./store/calendarSlice";
+
+const dispatch = useDispatch();
+
+// Add a new event
+dispatch(
+  addEvent({
+    id: "7",
+    resourceId: "a",
+    title: "New Meeting",
+    start: "2025-12-24T10:00:00",
+    end: "2025-12-24T11:00:00",
+  })
+);
+
+// Update an event
+dispatch(
+  updateEvent({
+    id: "1",
+    start: "2025-12-24T11:00:00",
+    end: "2025-12-24T12:00:00",
+  })
+);
 ```
 
 ## 🎨 Key Implementation Details
