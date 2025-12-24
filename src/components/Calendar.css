@@ -1,3 +1,94 @@
+/* Date Selector Strip */
+.date-selector-strip {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  padding: 20px 25px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  transition: all 0.3s ease;
+}
+
+.date-selector-strip:hover {
+  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.4);
+  transform: translateY(-2px);
+}
+
+.date-display h2 {
+  color: white;
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.date-controls {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.date-nav-btn,
+.today-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.date-nav-btn {
+  padding: 10px 12px;
+}
+
+.date-nav-btn:hover,
+.today-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.date-nav-btn:active,
+.today-btn:active {
+  transform: translateY(0);
+}
+
+.date-picker {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #2d3748;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.date-picker:hover {
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.date-picker:focus {
+  background: white;
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+}
+
 /* Calendar Component Wrapper */
 .calendar-wrapper {
   background: white;
@@ -122,8 +213,51 @@
   background: rgba(102, 126, 234, 0.2);
 }
 
+/* Custom Event Content */
+.custom-event-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px 0;
+}
+
+.custom-event-content .event-time {
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.custom-event-content .event-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.custom-event {
+  border-left: 3px solid currentColor !important;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
+  .date-selector-strip {
+    flex-direction: column;
+    padding: 15px;
+    gap: 15px;
+  }
+
+  .date-display h2 {
+    font-size: 1.2rem;
+    text-align: center;
+  }
+
+  .date-controls {
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
   .calendar-wrapper {
     padding: 15px;
   }

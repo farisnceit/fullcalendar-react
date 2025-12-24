@@ -1,20 +1,92 @@
-import { useState } from 'react'
+import { useState, useRef, useMemo } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import FullCalendar from '@fullcalendar/react'
 import resourceTimeGridPlugin from '@fullcalendar/resource-timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import { updateEvent, addEvent } from '../store/calendarSlice'
+import scrollgridPlugin from '@fullcalendar/scrollgrid'
+import enLocale from '@fullcalendar/core/locales/en-gb'
+import deLocale from '@fullcalendar/core/locales/de'
+import itLocale from '@fullcalendar/core/locales/it'
+import frLocale from '@fullcalendar/core/locales/fr'
+import { updateEvent, addEvent, setSelectedDate } from '../store/calendarSlice'
 import EventDrawer from './EventDrawer'
 import './Calendar.css'
 
+// Time constants
+const TIME_CONSTANTS = {
+  START_OF_DAY: '00:00:00',
+  END_OF_DAY: '24:00:00',
+  START_OF_DAY_15_MINUTE_MARK: '00:15:00'
+}
+
 function Calendar() {
   const dispatch = useDispatch()
-  const { resources, events } = useSelector((state) => state.calendar)
+  const { resources, events, selectedDate } = useSelector((state) => state.calendar)
   
-  // Drawer state
+  // Refs and state
+  const calendarRef = useRef(null)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [selectedEventId, setSelectedEventId] = useState(null)
+  const [selectedLanguage, setSelectedLanguage] = useState('en-gb')
+  const [calendarTime, setCalendarTime] = useState({
+    start: TIME_CONSTANTS.START_OF_DAY,
+    end: TIME_CONSTANTS.END_OF_DAY
+  })
+  const [isLoading, setIsLoading] = useState(false)
+
+  // Convert selectedDate from ISO string to Date object
+  const currentDate = useMemo(() => new Date(selectedDate), [selectedDate])
+
+  // Memoize events to prevent unnecessary re-renders
+  const stableEvents = useMemo(() => events, [events])
+
+  // Date navigation functions
+  const goToDate = (date) => {
+    dispatch(setSelectedDate(date.toISOString()))
+    if (calendarRef.current) {
+      const calendarApi = calendarRef.current.getApi()
+      calendarApi.gotoDate(date)
+    }
+  }
+
+  const goToPreviousDay = () => {
+    const newDate = new Date(currentDate)
+    newDate.setDate(newDate.getDate() - 1)
+    goToDate(newDate)
+  }
+
+  const goToNextDay = () => {
+    const newDate = new Date(currentDate)
+    newDate.setDate(newDate.getDate() + 1)
+    goToDate(newDate)
+  }
+
+  const goToToday = () => {
+    goToDate(new Date())
+  }
+
+  const handleDateChange = (e) => {
+    const selectedDate = new Date(e.target.value)
+    goToDate(selectedDate)
+  }
+
+  // Format date for input
+  const formatDateForInput = (date) => {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
+  // Format date for display
+  const formatDateForDisplay = (date) => {
+    return date.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+  }
 
   // Handle event drop (drag and drop)
   const handleEventDrop = (info) => {
@@ -72,7 +144,7 @@ function Calendar() {
   }
 
   // Handle date select (for creating new events)
-  const handleDateSelect = (selectInfo) => {
+  const handleTimeSelect = (selectInfo) => {
     const title = prompt('Please enter a title for the event:')
     const calendarApi = selectInfo.view.calendar
 
@@ -93,37 +165,129 @@ function Calendar() {
     }
   }
 
+  // Handle dates set (when calendar view changes)
+  const handleDatesSet = (dateInfo) => {
+    console.log('Calendar dates changed:', {
+      start: dateInfo.start,
+      end: dateInfo.end,
+      view: dateInfo.view.type
+    })
+  }
+
+  // Render custom event content
+  const renderEventContent = (eventInfo) => {
+    return (
+      <div className="custom-event-content">
+        <div className="event-time">
+          {eventInfo.timeText}
+        </div>
+        <div className="event-title">
+          {eventInfo.event.title}
+        </div>
+      </div>
+    )
+  }
+
+  // Get event class names
+  const getEventClassName = (arg) => {
+    const classNames = ['custom-event']
+    // Add any custom logic for additional class names
+    return classNames
+  }
+
   return (
     <>
+      <div className="date-selector-strip">
+        <div className="date-display">
+          <h2>{formatDateForDisplay(currentDate)}</h2>
+        </div>
+        
+        <div className="date-controls">
+          <button 
+            className="date-nav-btn" 
+            onClick={goToPreviousDay}
+            title="Previous Day"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          
+          <button 
+            className="today-btn" 
+            onClick={goToToday}
+          >
+            Today
+          </button>
+          
+          <button 
+            className="date-nav-btn" 
+            onClick={goToNextDay}
+            title="Next Day"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+          
+          <input
+            type="date"
+            className="date-picker"
+            value={formatDateForInput(currentDate)}
+            onChange={handleDateChange}
+          />
+        </div>
+      </div>
+
       <div className="calendar-wrapper">
         <FullCalendar
-          plugins={[resourceTimeGridPlugin, interactionPlugin, dayGridPlugin]}
-          initialView="resourceTimeGridDay"
+          plugins={[resourceTimeGridPlugin, interactionPlugin, scrollgridPlugin]}
           headerToolbar={{
-            left: 'prev,next today',
-            center: 'title',
-            right: 'resourceTimeGridDay,resourceTimeGridWeek,dayGridMonth'
+            center: "",
+            left: "",
+            right: "",
           }}
-          resources={resources}
-          events={events}
+          scrollTimeReset={false}
+          eventClassNames={getEventClassName}
+          ref={calendarRef}
+          aspectRatio={1.5}
+          locale={selectedLanguage}
+          locales={[enLocale, deLocale, itLocale, frLocale]}
+          themeSystem="bootstrap5"
+          eventOverlap={false}
+          selectOverlap={false}
+          timeZone="local"
+          allDaySlot={false}
+          datesSet={handleDatesSet}
+          slotDuration={TIME_CONSTANTS.START_OF_DAY_15_MINUTE_MARK}
+          snapDuration={TIME_CONSTANTS.START_OF_DAY_15_MINUTE_MARK}
+          slotMinTime={calendarTime.start || TIME_CONSTANTS.START_OF_DAY}
+          slotMaxTime={calendarTime.end || TIME_CONSTANTS.END_OF_DAY}
+          slotLabelFormat={{
+            hour: "2-digit",
+            hour12: false,
+            minute: "2-digit",
+          }}
+          nowIndicator={true}
+          initialView="resourceTimeGridDay"
+          height={"500px"}
+          resources={isLoading ? [] : resources}
           editable={true}
           selectable={true}
           selectMirror={true}
+          unselectAuto={true}
+          longPressDelay={200}
+          selectLongPressDelay={200}
+          eventResizableFromStart={true}
           dayMaxEvents={true}
           weekends={true}
-          eventDrop={handleEventDrop}
-          eventResize={handleEventResize}
+          events={stableEvents}
+          select={handleTimeSelect}
+          eventContent={renderEventContent}
           eventClick={handleEventClick}
-          select={handleDateSelect}
-          slotMinTime="08:00:00"
-          slotMaxTime="18:00:00"
-          height="500px"
-          resourceAreaHeaderContent="Resources"
-          resourceAreaWidth="15%"
-          slotDuration="00:30:00"
-          slotLabelInterval="01:00"
-          eventResizableFromStart={true}
-          nowIndicator={true}
+          dayMinWidth={200}
+          eventResize={handleEventResize}
+          eventDrop={handleEventDrop}
         />
       </div>
 
