@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from 'react'
+import { useState, useRef, useMemo, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import FullCalendar from '@fullcalendar/react'
 import resourceTimeGridPlugin from '@fullcalendar/resource-timegrid'
@@ -8,7 +8,7 @@ import enLocale from '@fullcalendar/core/locales/en-gb'
 import deLocale from '@fullcalendar/core/locales/de'
 import itLocale from '@fullcalendar/core/locales/it'
 import frLocale from '@fullcalendar/core/locales/fr'
-import { updateEvent, addEvent, setSelectedDate } from '../store/calendarSlice'
+import { updateEvent, addEvent, setSelectedDate, setCalendarTime } from '../store/calendarSlice'
 import EventDrawer from './EventDrawer'
 import './Calendar.css'
 
@@ -21,24 +21,80 @@ const TIME_CONSTANTS = {
 
 function Calendar() {
   const dispatch = useDispatch()
-  const { resources, events, selectedDate } = useSelector((state) => state.calendar)
+  const { resources, events, selectedDate, calendarStartTime, calendarEndTime } = useSelector((state) => state.calendar)
   
   // Refs and state
   const calendarRef = useRef(null)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [selectedEventId, setSelectedEventId] = useState(null)
   const [selectedLanguage, setSelectedLanguage] = useState('en-gb')
-  const [calendarTime, setCalendarTime] = useState({
-    start: TIME_CONSTANTS.START_OF_DAY,
-    end: TIME_CONSTANTS.END_OF_DAY
-  })
   const [isLoading, setIsLoading] = useState(false)
+
+  // Calculate average start and end times from resources
+  useEffect(() => {
+    if (resources && resources.length > 0) {
+      // Helper function to convert time string (HH:MM:SS) to minutes
+      const timeToMinutes = (timeStr) => {
+        const [hours, minutes] = timeStr.split(':').map(Number)
+        return hours * 60 + minutes
+      }
+
+      // Helper function to convert minutes to time string (HH:MM:SS)
+      const minutesToTime = (totalMinutes) => {
+        const hours = Math.floor(totalMinutes / 60)
+        const minutes = Math.round(totalMinutes % 60)
+        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`
+      }
+
+      // Calculate average start time
+      const startTimes = resources.map(r => timeToMinutes(r.start))
+      const avgStart = startTimes.reduce((sum, time) => sum + time, 0) / startTimes.length
+
+      // Calculate average end time
+      const endTimes = resources.map(r => timeToMinutes(r.end))
+      const avgEnd = endTimes.reduce((sum, time) => sum + time, 0) / endTimes.length
+
+      const calculatedStart = minutesToTime(avgStart)
+      const calculatedEnd = minutesToTime(avgEnd)
+
+      console.log('Calculated average times:', { start: calculatedStart, end: calculatedEnd })
+
+      // Update Redux state with calculated times
+      dispatch(setCalendarTime({ start: calculatedStart, end: calculatedEnd }))
+    }
+  }, [resources, dispatch])
 
   // Convert selectedDate from ISO string to Date object
   const currentDate = useMemo(() => new Date(selectedDate), [selectedDate])
 
   // Memoize events to prevent unnecessary re-renders
   const stableEvents = useMemo(() => events, [events])
+
+  // Helper function to check if a date is today
+  const isToday = (date) => {
+    const today = new Date()
+    return date.getDate() === today.getDate() &&
+           date.getMonth() === today.getMonth() &&
+           date.getFullYear() === today.getFullYear()
+  }
+
+  // Scroll to current time when viewing today's date
+  useEffect(() => {
+    if (calendarRef.current && isToday(currentDate)) {
+      const calendarApi = calendarRef.current.getApi()
+      
+      // Use setTimeout to ensure calendar is fully rendered
+      setTimeout(() => {
+        const now = new Date()
+        const hours = String(now.getHours()).padStart(2, '0')
+        const minutes = String(now.getMinutes()).padStart(2, '0')
+        const currentTime = `${hours}:${minutes}:00`
+        
+        console.log('Scrolling to current time:', currentTime)
+        calendarApi.scrollToTime(currentTime)
+      }, 100)
+    }
+  }, [currentDate])
 
   // Date navigation functions
   const goToDate = (date) => {
@@ -254,15 +310,15 @@ function Calendar() {
           locale={selectedLanguage}
           locales={[enLocale, deLocale, itLocale, frLocale]}
           themeSystem="bootstrap5"
-          eventOverlap={false}
+          eventOverlap={true}
           selectOverlap={false}
           timeZone="local"
           allDaySlot={false}
           datesSet={handleDatesSet}
           slotDuration={TIME_CONSTANTS.START_OF_DAY_15_MINUTE_MARK}
           snapDuration={TIME_CONSTANTS.START_OF_DAY_15_MINUTE_MARK}
-          slotMinTime={calendarTime.start || TIME_CONSTANTS.START_OF_DAY}
-          slotMaxTime={calendarTime.end || TIME_CONSTANTS.END_OF_DAY}
+          slotMinTime={calendarStartTime || TIME_CONSTANTS.START_OF_DAY}
+          slotMaxTime={calendarEndTime || TIME_CONSTANTS.END_OF_DAY}
           slotLabelFormat={{
             hour: "2-digit",
             hour12: false,

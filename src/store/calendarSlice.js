@@ -2,11 +2,13 @@ import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
   selectedDate: new Date().toISOString(), // Store as ISO string for serialization
+  calendarStartTime: '00:00:00',
+  calendarEndTime: '24:00:00',
   resources: [
-    { id: 'a', title: 'Conference Room A' },
-    { id: 'b', title: 'Conference Room B' },
-    { id: 'c', title: 'Meeting Room C' },
-    { id: 'd', title: 'Training Room D' }
+    { id: 'a', title: 'Conference Room A', start: '08:00:00', end: '18:00:00' },
+    { id: 'b', title: 'Conference Room B', start: '09:00:00', end: '17:00:00' },
+    { id: 'c', title: 'Meeting Room C', start: '07:30:00', end: '19:00:00' },
+    { id: 'd', title: 'Training Room D', start: '08:30:00', end: '16:30:00' }
   ],
   events: [
     // December 24, 2025
@@ -231,6 +233,10 @@ const calendarSlice = createSlice({
     },
     setSelectedDate: (state, action) => {
       state.selectedDate = action.payload // Expects ISO string
+    },
+    setCalendarTime: (state, action) => {
+      state.calendarStartTime = action.payload.start
+      state.calendarEndTime = action.payload.end
     }
   }
 })
@@ -242,7 +248,8 @@ export const {
   addResource, 
   updateResource, 
   deleteResource,
-  setSelectedDate
+  setSelectedDate,
+  setCalendarTime
 } = calendarSlice.actions
 
 export default calendarSlice.reducer
