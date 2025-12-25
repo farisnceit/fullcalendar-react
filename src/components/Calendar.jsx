@@ -8,6 +8,7 @@ import enLocale from '@fullcalendar/core/locales/en-gb'
 import deLocale from '@fullcalendar/core/locales/de'
 import itLocale from '@fullcalendar/core/locales/it'
 import frLocale from '@fullcalendar/core/locales/fr'
+import moment from 'moment'
 import { updateEvent, addEvent, setSelectedDate, setCalendarTime } from '../store/calendarSlice'
 import EventDrawer from './EventDrawer'
 import './Calendar.css'
@@ -70,25 +71,14 @@ function Calendar() {
   // Memoize events to prevent unnecessary re-renders
   const stableEvents = useMemo(() => events, [events])
 
-  // Helper function to check if a date is today
-  const isToday = (date) => {
-    const today = new Date()
-    return date.getDate() === today.getDate() &&
-           date.getMonth() === today.getMonth() &&
-           date.getFullYear() === today.getFullYear()
-  }
-
   // Scroll to current time when viewing today's date
   useEffect(() => {
-    if (calendarRef.current && isToday(currentDate)) {
+    if (calendarRef.current && moment(currentDate).isSame(moment(), 'day')) {
       const calendarApi = calendarRef.current.getApi()
       
       // Use setTimeout to ensure calendar is fully rendered
       setTimeout(() => {
-        const now = new Date()
-        const hours = String(now.getHours()).padStart(2, '0')
-        const minutes = String(now.getMinutes()).padStart(2, '0')
-        const currentTime = `${hours}:${minutes}:00`
+        const currentTime = moment().format('HH:mm:ss')
         
         console.log('Scrolling to current time:', currentTime)
         calendarApi.scrollToTime(currentTime)
